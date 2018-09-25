@@ -1,6 +1,6 @@
 const express = require('express');
 const request = require("request");
-const pokeapi = 'https://pokeapi.co/api/v2/pokemon';
+const pokeapi = 'https://pokeapi.co/api/v2/pokemon/';
 const pngLocation = '/images';
 
 // Get the references we will need
@@ -19,7 +19,7 @@ function setPokemons(pokemonList, req) {
         pokemon.image = `${baseURI}${pngLocation}/${pokemon.id}.png`; // Build a path to our local image since we have the pokedex id
         return pokemon;
     });
-};
+}
 
 /* GET all the pokemon */
 router.get('/', (req, res) => {
@@ -31,11 +31,24 @@ router.get('/', (req, res) => {
 
         // Use Express to send the JSON back to the client in the web response
         let jsonResp = JSON.parse(body); // Pull out the JSON body so we can add 'image URL' and 'id' before returning to client
-        console.log(setPokemons(jsonResp.results, req)); // Pass just the 'results' portion of the JSON which contains the array of Pokemon and the HTTP request portion to use in an image URL
+        setPokemons(jsonResp.results, req); // Pass just the 'results' portion of the JSON which contains the array of Pokemon and the HTTP request portion to use in an image URL
+        res.send(jsonResp);
+    });
+});
+
+router.get('/:number', (req, res) => {
+    console.log(`Sending a request to ${pokeapi}`);
+    request(pokeapi + req.params.number, function (err, response, body) {
+        if (err) {
+            throw err; // If we get an error then bail
+        }
+
+        // Use Express to send the JSON back to the client in the web response
+        let jsonResp = JSON.parse(body); // Pull out the JSON body so we can add 'image URL' and 'id' before returning to client
         res.send(jsonResp);
     });
 });
 
 
 // Export the routes
-module.exports = router;
+module.exports = router;http://localhost:3001/pokedex/6
